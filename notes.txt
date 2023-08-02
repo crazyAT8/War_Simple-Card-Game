@@ -1,0 +1,86 @@
+"How To Build a SImple Card Game with JavaScript"
+
+URL: https://www.youtube.com/watch?v=NxRwIZWjLtE&list=PLBx8Eyw3km2mHEl7-Q-bqTmYcaslqLNST
+
+    - Making the simplest card game ever- WAR
+        normal rules apply
+        user vs the computer
+            high card takes the cards
+            tie or equal cards get kept by the players and go to the bottom of the deck
+                object of the game is to get all the cards
+
+    - Visually its really simple 
+        26 cards ontop and on the bottom
+
+    - Problem that we are trying to solve is how to set up all of our cards and what not...
+
+    Intro [00:00]
+
+
+    Demo [01:31]
+
+
+    Deck of Cards Setup [02:16]
+
+
+    HTML [13:58]
+
+
+    CSS [15:39]
+
+
+    Dynamically Render Cards [24:56]
+
+        - in script.js 
+            const computerCardSlot
+
+    Implement Game Logic [28:19]
+
+    deck.js
+        - function startGame
+                * want to call the function right away
+                * create a new deck
+                * shuffle
+                * split into two equal piles of cards
+            deckMidpoint
+                which divides the deck in two
+            playerDeck & computerDeck
+                global variables with empty values
+                    in the startGame function give them values 
+            console.log to test
+
+        - cleanup function
+
+        - determine the winner of a particular round
+            isRoundWinner function determins the larger of the two cards
+                but we need to assign values to face cards
+        - CARD_VALUE_MAP
+            solid hard coded variable that has all the values for the cards in the deck
+                and the inRoundWinner function takes the first value and compares it to the second
+        - Conditional if statement
+            for what happens when the player wins
+                it not only shows the words that you win 
+                    but the card you gained goes to the bottom of your deck
+                        push the player and computer cards to the bottom of the playerDeck
+            else if for when the computer wins
+                same thing just push the cards to the computerDeck
+            else statement for a draw
+                push the playerCard back to the playerDeck  
+                    and push the computerCard back to the computerDeck
+        - Need to check if one of the two players completely runs out of cards
+            isGameOver function
+                just checks if either of the two decks have zero cards in them
+                    create this function and place it in another if statement in the flipCards function
+        - Stop variable needs to be created
+            set the stop to true in the conditional statement that was just created
+                and set to false in the startGame function
+                    and in the click EventListener add an if statement 
+                    that if (stop) than call startGame function
+        - else if statement to the flipCards function
+            to check if the winner is the playerDeck
+                show on the screen that you win and set stop to true
+        - test this by giving the player or computer a deck of two cards 
+            import {card} into script.js 
+                export class Card from deck.js
+
+    Outro [42:48]
