@@ -84,3 +84,23 @@ URL: https://www.youtube.com/watch?v=NxRwIZWjLtE&list=PLBx8Eyw3km2mHEl7-Q-bqTmYc
                 export class Card from deck.js
 
     Outro [42:48]
+
+
+
+
+
+
+    Notes on HTML Web3 edit
+
+        1. Wallet Connection
+            * Connect Wallet button: Allows the user to connect their wallet via MetaMask.
+            * walletAddress div: Displays the connected wallet address or "Not connected."
+        2. Wager Section
+            * wagerAmount input: Allows players to specify the wager amount in ETH.
+            * Start Game button: Initializes the game and sends the wager to the smart contract.
+        3. Game Board
+            * Computer and Player Areas: Represent the decks and cards for both players.
+            * text div: Displays game-related messages (e.g., win/lose status, round results).
+        4. Game Controls
+            * gameStatus: Displays the game status or instructions.
+            * Play Again button: Allows restarting the game once it finishes.
