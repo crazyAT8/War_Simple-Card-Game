@@ -31,10 +31,32 @@ const text = document.querySelector('.text');
 
 let playerDeck, computerDeck, inRound, stop;
 
-document.addEventListener('click', () => {
+// Smart Contract Config.
+const CONTRACT_ADDRESS = "";
+const CONTRACT_ABI = [/* ABI array here */];
+let contract;
+let playerAccount;
+
+async function connectWallet() {
+    if (window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        playerAccount = accounts[0];
+        console.log("Connected Wallet:", playerAccount);
+
+        // Init contract
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+    } else {
+        alert("Please install MetaMask!");
+    }
+}
+
+// Init Game
+document.addEventListener('click', async () => {
     if (stop) {
         startGame()
-        return
+        return;
     }
 
     if (inRound) {
@@ -42,10 +64,11 @@ document.addEventListener('click', () => {
     } else {
         flipCards()
     }
-})
+});
 
+connectWallet(); // wallet needs to connect on the page load
+startGame();
 
-startGame()
 function startGame() {
     const deck = new Deck();
     deck.shuffle();
