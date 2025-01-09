@@ -25,10 +25,6 @@ const computerDeckElement = document.querySelector('.computer-deck');
 const playerDeckElement = document.querySelector('.player-deck')
 const text = document.querySelector('.text');
 
-// const deck = new Deck()
-// deck.shuffle()
-// console.log(deck.cards); 
-
 let playerDeck, computerDeck, inRound, stop;
 
 // Smart Contract Config.
@@ -77,7 +73,8 @@ function startGame() {
     playerDeck = new Deck(deck.cards.slice(0, deckMidpoint));
     computerDeck = new Deck(deck.cards.slice(deckMidpoint, deck.numberOfCards));
     // computerDeck = new Deck([new Card("s", 2)]);
-        // just to test for you win or you lose
+    // just to test for you win or you lose
+
     inRound = false;
     stop = false;
 
@@ -96,7 +93,7 @@ function cleanBeforeRound() {
     updateDeckCount()
 }
 
-function flipCards() {
+async function flipCards() {
     inRound = true;
 
     const playerCard = playerDeck.pop();
@@ -108,25 +105,26 @@ function flipCards() {
     updateDeckCount()
 
     if (isRoundWinner(playerCard, computerCard)) {
-        text.innerText = "Win"
-        playerDeck.push(playerCard)
-        playerDeck.push(computerCard)
+        text.innerText = "Win";
+        playerDeck.push(playerCard);
+        playerDeck.push(computerCard);
     } else if (isRoundWinner(computerCard, playerCard)) {
-        text.innerText = "Lose"
-        computerDeck.push(playerCard)
-        computerDeck.push(computerCard)
+        text.innerText = "Lose";
+        computerDeck.push(playerCard);
+        computerDeck.push(computerCard);
     } else {
-        text.innerText = "Draw"
-        playerDeck.push(playerCard)
-        computerDeck.push(computerCard)
+        text.innerText = "Draw";
+        playerDeck.push(playerCard);
+        computerDeck.push(computerCard);
     }
 
     if (isGameOver(playerDeck)) {
-        text.innerText = "You Lose!!"
-        stop = true
+        text.innerText = "You Lose!!";
+        stop = true;
     } else if (isGameOver(computerDeck)) {
-        text.innerText = "You Win!!"
-        stop = true
+        text.innerText = "You Win!!";
+        stop = true;
+        await declareWinner(playerAccount);
     }
 }
 
@@ -145,3 +143,14 @@ function isGameOver(deck) {
 
 
 // computerCardSlot.appendChild(deck.cards[0].getHTML())
+
+// Declare Winner on Smart Contract
+async function declareWinner(winnerAddress) {
+    try {
+        const tx = await contract.declareWinner(winnerAddress);
+        await tx.wait();
+        console.log("Winner declared:", winnerAddress);
+    } catch (error) {
+        console.error("Error declaring winner:", error);
+    }
+}
