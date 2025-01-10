@@ -56,9 +56,9 @@ export class Card {
 
     getHTML() {
         const cardDiv = document.createElement("div");
-        cardDiv.innerText = this.suit;
-        cardDiv.classList.add("card", this.color);
-        cardDiv.dataset.value = `${this.value} ${this.suit}`;
+        cardDiv.innerText = `${this.value} ${this.suit}`; // Display both value and suit
+        cardDiv.classList.add("card", this.color); // Add styling classes
+        cardDiv.dataset.value = `${this.value} ${this.suit}`; // Store value and suit in a data attribute
         return cardDiv;
     }
 }
