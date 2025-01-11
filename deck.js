@@ -51,7 +51,7 @@ export class Card {
     }
 
     get color() {
-        return this.suit === "♣" || this.suit === "♠" ? "black" : "red";
+        return this.suit === "♥" || this.suit === "♦" ? "red" : "black"; // Red for hearts and diamonds
     }
 
     getHTML() {
