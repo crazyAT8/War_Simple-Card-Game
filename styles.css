@@ -174,3 +174,26 @@ header h1 {
     border: none;
     cursor: pointer;
 }
+
+.card {
+    width: 60px;
+    height: 90px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 5px;
+    text-align: center;
+}
+
+.card.red {
+    color: red; /* Red for hearts and diamonds */
+}
+
+.card.black {
+    color: black; /* Black for spades and clubs */
+}
