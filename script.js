@@ -154,3 +154,100 @@ async function declareWinner(winnerAddress) {
         console.error("Error declaring winner:", error);
     }
 }
+
+let playerDeck, computerDeck, inRound, stop;
+let roundCounter = 0; // Initialize round counter
+
+document.addEventListener('click', () => {
+    if (stop) {
+        startGame();
+        return;
+    }
+
+    if (inRound) {
+        cleanBeforeRound();
+    } else {
+        flipCards();
+    }
+});
+
+startGame();
+
+function startGame() {
+    const deck = new Deck();
+    deck.shuffle();
+
+    const deckMidpoint = Math.ceil(deck.numberOfCards / 2);
+    playerDeck = new Deck(deck.cards.slice(0, deckMidpoint));
+    computerDeck = new Deck(deck.cards.slice(deckMidpoint, deck.numberOfCards));
+
+    inRound = false;
+    stop = false;
+    roundCounter = 0; // Reset the round counter
+
+    cleanBeforeRound();
+    updateRoundDisplay();
+}
+
+function cleanBeforeRound() {
+    inRound = false;
+    computerCardSlot.innerHTML = '';
+    playerCardSlot.innerHTML = '';
+    text.innerText = '';
+
+    updateDeckCount();
+}
+
+function flipCards() {
+    inRound = true;
+    roundCounter++; // Increment round counter
+    updateRoundDisplay(); // Update round display
+
+    const playerCard = playerDeck.pop();
+    const computerCard = computerDeck.pop();
+
+    playerCardSlot.appendChild(playerCard.getHTML());
+    computerCardSlot.appendChild(computerCard.getHTML());
+
+    updateDeckCount();
+
+    if (isRoundWinner(playerCard, computerCard)) {
+        text.innerText = "Win";
+        playerDeck.push(playerCard);
+        playerDeck.push(computerCard);
+    } else if (isRoundWinner(computerCard, playerCard)) {
+        text.innerText = "Lose";
+        computerDeck.push(playerCard);
+        computerDeck.push(computerCard);
+    } else {
+        text.innerText = "Draw";
+        playerDeck.push(playerCard);
+        computerDeck.push(computerCard);
+    }
+
+    if (isGameOver(playerDeck)) {
+        text.innerText = "You Lose!!";
+        stop = true;
+    } else if (isGameOver(computerDeck)) {
+        text.innerText = "You Win!!";
+        stop = true;
+    }
+}
+
+function updateDeckCount() {
+    computerDeckElement.innerText = computerDeck.numberOfCards;
+    playerDeckElement.innerText = playerDeck.numberOfCards;
+}
+
+function updateRoundDisplay() {
+    const roundDisplay = document.getElementById('roundCount');
+    roundDisplay.innerText = `Rounds Played: ${roundCounter}`;
+}
+
+function isRoundWinner(cardOne, cardTwo) {
+    return CARD_VALUE_MAP[cardOne.value] > CARD_VALUE_MAP[cardTwo.value];
+}
+
+function isGameOver(deck) {
+    return deck.numberOfCards === 0;
+}
