@@ -141,7 +141,7 @@ header h1 {
 .deck {
     width: 100px;
     height: 150px;
-    background-color: #444;
+    background-color: #6a5757;
     color: white;
     display: flex;
     justify-content: center;
@@ -176,8 +176,8 @@ header h1 {
 }
 
 .card {
-    width: 60px;
-    height: 90px;
+    width: 80px;
+    height: 120px;
     border: 1px solid #ccc;
     border-radius: 8px;
     background-color: white;

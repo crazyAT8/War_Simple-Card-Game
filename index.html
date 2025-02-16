@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Card Game: War</title>
     <script src="script.js" type="module"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -28,9 +29,12 @@
                 <div class="computer-deck deck"></div>
                 <div class="computer-card-slot card-slot"></div>
                 <div class="text"></div>
-                <div class="player-deck deck"></div>
                 <div class="player-card-slot card-slot"></div>
+                <div class="player-deck deck"></div>
             </div>
+
+            <p id="roundCount">Rounds Played: 0</p>
+
 
             <div class="game-controls">
                 <p id="gameStatus">Click anywhere to start!</p>
