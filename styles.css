@@ -135,7 +135,10 @@ header h1 {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    margin: 20px 0;
+    flex-wrap: nowrap; /* Prevents elements from wrapping */
+    width: 100%;
+    max-width: 600px; /* Adjust based on your design */
+    margin: auto;
 }
 
 .deck {
@@ -156,15 +159,20 @@ header h1 {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden; /* Ensures extra content doesn't push things around */
 }
 
 .text {
     font-size: 18px;
     margin: 20px 0;
+    min-height: 24px; /* Ensures height doesn't change when text updates */
+    visibility: hidden; /* Hides text but keeps space */
 }
 
 .game-controls {
-    margin: 20px 0;
+    margin-top: 20px;
+    text-align: center;
+    position: relative;
 }
 
 #playAgainButton {
@@ -176,8 +184,8 @@ header h1 {
 }
 
 .card {
-    width: 80px;
-    height: 120px;
+    width: 60px;
+    height: 90px;
     border: 1px solid #ccc;
     border-radius: 8px;
     background-color: white;
@@ -186,8 +194,8 @@ header h1 {
     align-items: center;
     font-size: 18px;
     font-weight: bold;
-    margin: 5px;
     text-align: center;
+    position: absolute; /* Prevents affecting layout */
 }
 
 .card.red {

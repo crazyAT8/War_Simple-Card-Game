@@ -161,7 +161,14 @@ async function declareWinner(winnerAddress) {
 // Event Listeners
 document.addEventListener("DOMContentLoaded", startGame);
 connectWalletButton.addEventListener("click", connectWallet);
-document.addEventListener('click', () => {
+document.addEventListener('click', (event) => {
+    // List of elements that should NOT trigger the game
+    const excludedElements = ["connectWalletButton", "startGameButton", "wagerAmount"];
+
+    if (excludedElements.includes(event.target.id)) {
+        return; // Prevent game start if clicking these elements
+    }
+
     if (stop) {
         startGame();
     } else if (inRound) {
