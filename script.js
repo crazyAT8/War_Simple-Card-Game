@@ -2,6 +2,9 @@ import Deck from "./deck.js";
 // import Deck, { Card } from "./deck.js"
     // just to test for you win or you lose
 
+// Import ethers.js (only needed if using ES modules, otherwise use the CDN in HTML)
+import { ethers } from "ethers";
+
 const CARD_VALUE_MAP = {
     "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10,
     "J": 11, "Q": 12, "K": 13, "A": 14
@@ -26,26 +29,43 @@ let playerAccount;
 let playerDeck, computerDeck, inRound, stop;
 let roundCounter = 0;
 
-// Wallet Connection
-async function connectWallet() {
-    if (window.ethereum) {
-        try {
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            playerAccount = accounts[0];
-            console.log("Connected Wallet:", playerAccount);
-
-            // Init contract
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
-            contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-            
-            // Update UI
-            document.getElementById("walletAddress").innerText = `Connected: ${playerAccount}`;
-        } catch (error) {
-            console.error("Error connecting wallet:", error);
-        }
+// Ensure the DOM is fully loaded before running any script
+document.addEventListener("DOMContentLoaded", () => {
+    const connectWalletButton = document.getElementById("connectWalletButton");
+    
+    if (connectWalletButton) {
+        connectWalletButton.addEventListener("click", connectWallet);
     } else {
-        alert("Please install MetaMask!");
+        console.error("Connect Wallet button not found in the DOM.");
+    }
+});
+
+// Wallet Connection Function
+async function connectWallet() {
+    // Check if MetaMask (or another provider) is installed
+    if (typeof window.ethereum === "undefined") {
+        alert("MetaMask is not installed. Please install it to connect your wallet.");
+        return;
+    }
+
+    try {
+        // Request account access from MetaMask
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        playerAccount = accounts[0]; // Select the first connected account
+        console.log("Connected Wallet:", playerAccount);
+
+        // Initialize ethers.js provider & signer
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        // Initialize the contract instance
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+        // Update UI with the connected wallet address
+        document.getElementById("walletAddress").innerText = `Connected: ${playerAccount}`;
+    } catch (error) {
+        console.error("Error connecting wallet:", error);
+        alert("Failed to connect wallet. Check the console for details.");
     }
 }
 
