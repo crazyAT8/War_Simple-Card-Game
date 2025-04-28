@@ -2,69 +2,74 @@ import Deck from "./deck.js";
 // import Deck, { Card } from "./deck.js"
     // just to test for you win or you lose
 
+// Import ethers.js (only needed if using ES modules, otherwise use the CDN in HTML)
+import { ethers } from "ethers";
+
 const CARD_VALUE_MAP = {
-    "2": 2,
-    "3": 3,
-    "4": 4,
-    "5": 5,
-    "6": 6,
-    "7": 7,
-    "8": 8,
-    "9": 9,
-    "10": 10,
-    J: 11,
-    Q: 12,
-    K: 13,
-    A: 14
-}
+    "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10,
+    "J": 11, "Q": 12, "K": 13, "A": 14
+};
 
 // DOM Elements 
-const computerCardSlot = document.querySelector('.computer-card-slot ');
+const computerCardSlot = document.querySelector('.computer-card-slot');
 const playerCardSlot = document.querySelector('.player-card-slot');
 const computerDeckElement = document.querySelector('.computer-deck');
 const playerDeckElement = document.querySelector('.player-deck')
 const text = document.querySelector('.text');
-
-let playerDeck, computerDeck, inRound, stop;
+const connectWalletButton = document.getElementById("connectWalletButton");
+const roundDisplay = document.getElementById('roundCount');
 
 // Smart Contract Config.
-const CONTRACT_ADDRESS = "";
-const CONTRACT_ABI = [/* ABI array here */];
+const CONTRACT_ADDRESS = ""; // Add your contract address here
+const CONTRACT_ABI = []; // Add your ABI here
 let contract;
 let playerAccount;
 
-async function connectWallet() {
-    if (window.ethereum) {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        playerAccount = accounts[0];
-        console.log("Connected Wallet:", playerAccount);
+// Game Variables
+let playerDeck, computerDeck, inRound, stop;
+let roundCounter = 0;
 
-        // Init contract
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+// Ensure the DOM is fully loaded before running any script
+document.addEventListener("DOMContentLoaded", () => {
+    const connectWalletButton = document.getElementById("connectWalletButton");
+    
+    if (connectWalletButton) {
+        connectWalletButton.addEventListener("click", connectWallet);
     } else {
-        alert("Please install MetaMask!");
-    }
-}
-
-// Init Game
-document.addEventListener('click', async () => {
-    if (stop) {
-        startGame()
-        return;
-    }
-
-    if (inRound) {
-        cleanBeforeRound()
-    } else {
-        flipCards()
+        console.error("Connect Wallet button not found in the DOM.");
     }
 });
 
-connectWallet(); // wallet needs to connect on the page load
-startGame();
+// Wallet Connection Function
+async function connectWallet() {
+    // Check if MetaMask (or another provider) is installed
+    if (typeof window.ethereum === "undefined") {
+        alert("MetaMask is not installed. Please install it to connect your wallet.");
+        return;
+    }
 
+    try {
+        // Request account access from MetaMask
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        playerAccount = accounts[0]; // Select the first connected account
+        console.log("Connected Wallet:", playerAccount);
+
+        // Initialize ethers.js provider & signer
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        // Initialize the contract instance
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+        // Update UI with the connected wallet address
+        document.getElementById("walletAddress").innerText = `Connected: ${playerAccount}`;
+    } catch (error) {
+        console.error("Error connecting wallet:", error);
+        alert("Failed to connect wallet. Check the console for details.");
+    }
+}
+
+// Start Game
 function startGame() {
     const deck = new Deck();
     deck.shuffle();
@@ -72,81 +77,99 @@ function startGame() {
     const deckMidpoint = Math.ceil(deck.numberOfCards / 2);
     playerDeck = new Deck(deck.cards.slice(0, deckMidpoint));
     computerDeck = new Deck(deck.cards.slice(deckMidpoint, deck.numberOfCards));
-    // computerDeck = new Deck([new Card("s", 2)]);
-    // just to test for you win or you lose
 
     inRound = false;
     stop = false;
+    roundCounter = 0;
 
-    // console.log(playerDeck)
-    // console.log(computerDeck)
-
-    cleanBeforeRound()
+    cleanBeforeRound();
+    updateRoundDisplay();
 }
 
+// Clear Board Before Round
 function cleanBeforeRound() {
-    inRound =false;
+    inRound = false;
     computerCardSlot.innerHTML = '';
     playerCardSlot.innerHTML = '';
     text.innerText = '';
-
-    updateDeckCount()
+    updateDeckCount();
 }
 
+// Flip Cards & Determine Winner
 async function flipCards() {
+    if (stop) return;
+    
     inRound = true;
+    roundCounter++;
+    updateRoundDisplay();
 
     const playerCard = playerDeck.pop();
     const computerCard = computerDeck.pop();
 
+    if (!playerCard || !computerCard) return; // Prevents errors if a deck is empty
+
     playerCardSlot.appendChild(playerCard.getHTML());
     computerCardSlot.appendChild(computerCard.getHTML());
 
-    updateDeckCount()
+    updateDeckCount();
 
     if (isRoundWinner(playerCard, computerCard)) {
-        text.innerText = "Win";
+        text.innerText = "You Win This Round!";
         playerDeck.push(playerCard);
         playerDeck.push(computerCard);
     } else if (isRoundWinner(computerCard, playerCard)) {
-        text.innerText = "Lose";
+        text.innerText = "You Lose This Round!";
         computerDeck.push(playerCard);
         computerDeck.push(computerCard);
     } else {
-        text.innerText = "Draw";
+        text.innerText = "It's a Draw!";
         playerDeck.push(playerCard);
         computerDeck.push(computerCard);
     }
 
+    // Check for game over
     if (isGameOver(playerDeck)) {
-        text.innerText = "You Lose!!";
+        text.innerText = "You Lose The Game!";
         stop = true;
     } else if (isGameOver(computerDeck)) {
-        text.innerText = "You Win!!";
+        text.innerText = "You Win The Game!";
         stop = true;
-        await declareWinner(playerAccount);
+        try {
+            await declareWinner(playerAccount);
+        } catch (error) {
+            console.error("Failed to declare winner:", error);
+        }
     }
 }
 
+// Update Deck Count Display
 function updateDeckCount() {
-    computerDeckElement.innerText = computerDeck.numberOfCards;
-    playerDeckElement.innerText = playerDeck.numberOfCards;
+    computerDeckElement.innerText = `Deck: ${computerDeck.numberOfCards}`;
+    playerDeckElement.innerText = `Deck: ${playerDeck.numberOfCards}`;
 }
 
+// Update Round Display
+function updateRoundDisplay() {
+    roundDisplay.innerText = `Rounds Played: ${roundCounter}`;
+}
+
+// Determine Round Winner
 function isRoundWinner(cardOne, cardTwo) {
-    return CARD_VALUE_MAP[cardOne.value] > CARD_VALUE_MAP[cardTwo.value]
+    return CARD_VALUE_MAP[cardOne.value] > CARD_VALUE_MAP[cardTwo.value];
 }
 
+// Check If Game Over
 function isGameOver(deck) {
-    return deck.numberOfCards === 0
+    return deck.numberOfCards === 0;
 }
-
-
-// computerCardSlot.appendChild(deck.cards[0].getHTML())
 
 // Declare Winner on Smart Contract
 async function declareWinner(winnerAddress) {
     try {
+        if (!contract) {
+            console.error("Contract not initialized.");
+            return;
+        }
         const tx = await contract.declareWinner(winnerAddress);
         await tx.wait();
         console.log("Winner declared:", winnerAddress);
@@ -154,3 +177,23 @@ async function declareWinner(winnerAddress) {
         console.error("Error declaring winner:", error);
     }
 }
+
+// Event Listeners
+document.addEventListener("DOMContentLoaded", startGame);
+connectWalletButton.addEventListener("click", connectWallet);
+document.addEventListener('click', (event) => {
+    // List of elements that should NOT trigger the game
+    const excludedElements = ["connectWalletButton", "startGameButton", "wagerAmount"];
+
+    if (excludedElements.includes(event.target.id)) {
+        return; // Prevent game start if clicking these elements
+    }
+
+    if (stop) {
+        startGame();
+    } else if (inRound) {
+        cleanBeforeRound();
+    } else {
+        flipCards();
+    }
+});
